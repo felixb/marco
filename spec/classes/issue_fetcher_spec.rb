@@ -19,14 +19,14 @@ describe Marco::IssueFetcher do
 
       # first loop
       expect(@kb).to receive(:size) { 5 }
-      expect(@project).to receive(:issues).with(startAt: 5, maxResults: Marco::IssueFetcher::MAX_RESULTS, orderBy: '+key') { [some_issue, some_other_issue] }
+      expect(@project).to receive(:issues).with(startAt: 5, maxResults: Marco::IssueFetcher::MAX_RESULTS) { [some_issue, some_other_issue] }
       expect(@kb).to receive(:learn).with(some_issue)
       expect(@kb).to receive(:learn).with(some_other_issue)
       expect(@kb).to receive(:save!)
 
       # second loop
       expect(@kb).to receive(:size) { 7 }
-      expect(@project).to receive(:issues).with(startAt: 7, maxResults: Marco::IssueFetcher::MAX_RESULTS, orderBy: '+key') { [] }
+      expect(@project).to receive(:issues).with(startAt: 7, maxResults: Marco::IssueFetcher::MAX_RESULTS) { [] }
       subject.fetch
     end
   end

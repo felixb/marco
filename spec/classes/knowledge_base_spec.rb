@@ -24,6 +24,10 @@ describe Marco::KnowledgeBase do
     before do
       @summaries = double(MarkyMarkov::Dictionary)
       @texts = double(MarkyMarkov::Dictionary)
+      allow(MarkyMarkov::Dictionary).to receive(:delete_dictionary!).with('some-project-summaries')
+      allow(MarkyMarkov::Dictionary).to receive(:delete_dictionary!).with('some-project-texts')
+      allow(FileUtils).to receive(:rm_f).with('some-project-state.yaml')
+
       allow(MarkyMarkov::Dictionary).to receive(:new).with('some-project-summaries') { @summaries }
       allow(MarkyMarkov::Dictionary).to receive(:new).with('some-project-texts') { @texts }
       allow(@summaries).to receive(:parse_string)

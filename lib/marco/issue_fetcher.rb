@@ -13,7 +13,7 @@ class Marco::IssueFetcher < Marco::Base
 
     loop do
       startAt = @knowledge_base.size
-      issues = project.issues(startAt: startAt, maxResults: MAX_RESULTS, orderBy: '+key')
+      issues = project.issues(startAt: startAt, maxResults: MAX_RESULTS)
       break if issues.size == 0
 
       logger.info "Parsing #{issues.size} issues #{issues.first.key}..#{issues.last.key}"

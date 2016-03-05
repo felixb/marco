@@ -49,6 +49,7 @@ class MarcoCli < Thor
                             })
 
     kb = Marco::KnowledgeBase.new(options[:project_id], options[:text_field])
+    kb.wipe!
     fetcher = Marco::IssueFetcher.new(jira, options[:project_id], kb)
     fetcher.fetch
   end
