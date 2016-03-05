@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require 'thor'
+require_relative '../lib/marco'
+
+class MarcoCli < Thor
+
+  class_option :project_id, type: :string, default: ENV['JIRA_PROJECT'], desc: 'JIRA project'
+  class_option :text_field, type: :string, default: ENV['JIRA_TEXT_FIELD'], desc: 'Name of the text field used for JIRA issues'
+  class_option :jira_site, type: :string, default: ENV['JIRA_SITE'], desc: 'JIRA base URL'
+  class_option :jira_path, type: :string, default: ENV['JIRA_PATH'] || '/jira', desc: 'path to JIRA'
+  class_option :jira_user, type: :string, default: ENV['JIRA_USER'], desc: 'JIRA username'
+  class_option :jira_password, type: :string, default: ENV['JIRA_PASSWORD'], desc: 'JIRA password'
+  class_option :verbose, type: :boolean, aliases: '-v'
+
+  desc 'create-ticket', 'Create a new JIRA issue'
+  method_option :num_sentences, type: :numeric, default: 5, desc: 'Number of sentences for issues text'
+  method_option :dry_run, type: :boolean, desc: 'Just print a new ticket', aliases: '-d'
+
+  def create_ticket
+    Marco.logger.level = options[:verbose] ? Logger::DEBUG : Logger::INFO
+    jira = JIRA::Client.new({
+                                :username => options[:jira_user],
+                                :password => options[:jira_password],
+                                :site => options[:jira_site],
+                                :context_path => options[:jira_path],
+                                :auth_type => :basic,
+                                :read_timeout => 120
+                            })
+
+    kb = Marco::KnowledgeBase.new(options[:project_id], options[:text_field])
+    writer = Marco::IssueWriter.new(jira, options[:project_id], kb)
+    writer.create(options[:num_sentences])
+  end
+
+  desc 'update', 'Reads all tickets of a JIRA project'
+
+  def update
+    Marco.logger.level = options[:verbose] ? Logger::DEBUG : Logger::INFO
+    jira = JIRA::Client.new({
+                                :username => options[:jira_user],
+                                :password => options[:jira_password],
+                                :site => options[:jira_site],
+                                :context_path => options[:jira_path],
+                                :auth_type => :basic,
+                                :read_timeout => 120
+                            })
+
+    kb = Marco::KnowledgeBase.new(options[:project_id], options[:text_field])
+    fetcher = Marco::IssueFetcher.new(jira, options[:project_id], kb)
+    fetcher.fetch
+  end
+end
+
+MarcoCli.start(ARGV)
